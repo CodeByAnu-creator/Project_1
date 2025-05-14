@@ -1,16 +1,8 @@
-'''
-DB_USER = 'root'
-DB_PASSWORD = 'God@#9999'
-DB_HOST = 'localhost'  # Or your MySQL host if it's not local
-DB_PORT = '3306' # Or your MySQL port
-DB_DATABASE = 'phonepe_data'
-'''
-
 # credentials.py
 from urllib.parse import quote_plus # <--- Add this import
 
 DB_USER = 'root'
-DB_PASSWORD = 'God@#9999' # Your actual password
+DB_PASSWORD = '*******' # Your actual password
 DB_HOST = 'localhost'  # Or your MySQL host if it's not local
 DB_PORT = '3306' # Or your MySQL port
 DB_DATABASE = 'phonepe'
