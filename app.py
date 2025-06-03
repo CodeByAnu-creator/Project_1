@@ -12,14 +12,14 @@ from urllib.parse import quote_plus # Import quote_plus for password encoding
 try:
     from credentials import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE#, ENCODED_PASSWORD # ENCODED_PASSWORD is not used by mysql.connector
 except ImportError:
-    st.error("Error: credentials.py not found or incomplete. Please create credentials.py with your database details.")
+    st.error("Error: credentials.py not found.")
     st.stop() # App stops if credentials are not available
 
 # --- Database Configuration ---
 def get_db_connection():
     # Establishing database connection using MySQL.
     try:
-        # Use credentials imported from credentials.py
+        # Using credentials imported from credentials.py
         conn = mysql.connector.connect(
             host=DB_HOST,
             user=DB_USER,
@@ -412,7 +412,7 @@ def load_geojson(filepath):
 india_states_geojson = load_geojson(INDIA_STATES_GEOJSON_PATH)
 
 # --- Data Loading Functions ---
-@st.cache_data
+@st.cache_data #decorator
 def load_aggregated_transaction_data(query):
     conn = get_db_connection()
     if conn is None:
@@ -425,7 +425,7 @@ def load_aggregated_transaction_data(query):
         st.error(f"Something went wrong while loading aggregated transaction data: {e}")
         return pd.DataFrame()
     df['period'] = df['year'].astype(str) + '-Q' + df['quarter'].astype(str)
-    # Ensure correct order for plotting
+    # order for plotting
     period_order = sorted(df['period'].unique())
     df['period'] = pd.Categorical(df['period'], categories=period_order, ordered=True)
     return df
@@ -621,7 +621,7 @@ if page_selection == "Home":
 
             # Ensure 'period' is sorted and set as categorical for proper ordering (already done above)
         overview_df = overview_df.sort_values('period')
-        st.subheader("Total Transaction Volume Over Time (Bar Chart)")
+        st.subheader("Total Transaction Volume Over Time")
             # Plot using matplotlib
         fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -648,8 +648,8 @@ if page_selection == "Home":
         st.plotly_chart(fig_value_overview, use_container_width=True)
 
             # Optional: Display raw data
-        if st.checkbox("Show Raw Data (Aggregated Overview)"):
-            st.subheader("Raw Data (Aggregated Overview)")
+        if st.checkbox("Show Raw Data"):
+            st.subheader("Raw Data")
             st.dataframe(overview_df)
 
 
@@ -1689,10 +1689,10 @@ elif page_selection == "Transaction Analysis for Market Expansion":
 
     # --- Content based on Market Expansion Analysis Sub-navigation ---
     if market_expansion_analysis_selection == "Top-performing states":
-        st.subheader("Top 10 Performing States by Quarterly Transaction Volume")
+        st.subheader("Top 5 Performing States by Quarterly Transaction Volume")
 
         st.markdown("""
-        This section shows the top 10 states with the highest total transaction volume in the latest quarter available in the data.
+        This section shows the top 5 states with the highest total transaction volume in the latest quarter available in the data.
         """)
 
         # Load the data using the specific query
@@ -1715,7 +1715,7 @@ elif page_selection == "Transaction Analysis for Market Expansion":
                 df_top_states_quarterly,
                 x='state',
                 y='quarterly_transaction_volume',
-                title='Top 10 States by Quarterly Transaction Volume',
+                
                 labels={'state': 'State', 'quarterly_transaction_volume': 'Total Quarterly Transaction Volume'},
                 color='state' # Color bars by state
             )
@@ -1723,14 +1723,13 @@ elif page_selection == "Transaction Analysis for Market Expansion":
             st.plotly_chart(fig_top_states, use_container_width=True)
 
             st.info("""
-            This bar chart shows the states with the highest quarterly transaction volumes based on the available data.
-            Note: This query ranks the top 10 quarterly volumes across all quarters, not necessarily the top 10 states in the *latest* quarter.
+            Note: This query ranks the top 5 quarterly volumes across all quarters, not necessarily the top 5 states in the *latest* quarter.
             """)
 
 
             # Optional: Display raw data
-            if st.checkbox("Show Raw Data (Top Quarterly States)"):
-                st.subheader("Raw Data (Top Quarterly States)")
+            if st.checkbox("Show Raw Data"):
+                st.subheader("Raw Data")
                 st.dataframe(df_top_states_quarterly)
 
     if market_expansion_analysis_selection == "Transaction to Low user Ratio":
@@ -1765,12 +1764,7 @@ elif page_selection == "Transaction Analysis for Market Expansion":
 
             st.pyplot(fig)
 
-            st.write("""
-            **Interpreting the plot:**
-            - States in the lower-right area (high on the X-axis, low on the Y-axis)
-              have a large number of registered users but a relatively low transaction ratio.
-              These are potential candidates for marketing efforts aimed at increasing transaction activity.
-            """)
+
             if st.checkbox("Show Raw Data "):
                 st.subheader("Raw Data")
                 st.dataframe(df_user_ratio)
@@ -1807,12 +1801,7 @@ elif page_selection == "Transaction Analysis for Market Expansion":
 
             st.pyplot(fig)
 
-            st.write("""
-            **Interpreting the plot:**
-            - States in the lower-right area (high on the X-axis, low on the Y-axis)
-              have a large number of registered users but a relatively low transaction ratio.
-              These are potential candidates for marketing efforts aimed at increasing transaction activity.
-            """)
+
             if st.checkbox("Show Raw Data "):
                 st.subheader("Raw Data")
                 st.dataframe(df_high_user_ratio)
